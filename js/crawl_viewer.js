@@ -38,7 +38,7 @@ class Tree extends Component {
           { expanded ?
             _.uniq(links, l => l.url).map((link, i) => {
               if (crawl[link.url]) {
-                return <Tree key={ i } crawl={ crawl } url={ link.url } />;
+                return <Tree key={ i } crawl={ crawl } url={ link.url } showExternal={ showExternal }/>;
               } else if (showExternal) {
                 return <li key={ i }><a href={ link.url }>{ link.text.length > 0 ? link.text : link.url }</a></li>;
               } else {
