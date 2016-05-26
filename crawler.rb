@@ -19,27 +19,6 @@ def debug(s)
   end
 end
 
-class Link
-  attr_reader :url, :text
-
-  def initialize(url, text)
-    @url, @text = url, text
-  end
-
-  def to_s
-    "#{text} (#{url})"
-  end
-
-  def inspect
-    "#<Link #{to_s}>"
-  end
-
-  def to_json(generator)
-    {text: text, url: url}.to_json(generator)
-  end
-end
-
-
 class Crawler
   attr_reader :base, :to_crawl, :seen
 
