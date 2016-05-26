@@ -29,16 +29,23 @@ class Tree extends Component {
 
   render() {
     const { expanded } = this.state;
-    const { crawl, url, showExternal, hideSeen, seen, style } = this.props;
+    const { crawl, url, showExternal, hideSeen, seen, current, updateCurrent } = this.props;
     const { title, links } = crawl[url];
 
     const nextSeen = seen.concat(_.map(links, 'url'));
+
+    let style;
+    if (current === url) {
+      style = {backgroundColor: '#FFFF91'};
+    } else {
+      style = this.props.style;
+    }
 
     return (
       <li>
         <div>
           <input type="checkbox" checked={ expanded } onChange={ this.updateExpanded }/>
-          <a href={ url } style={ style } >{ title }</a>
+          <a href={ url } style={ style } onMouseOver={ updateCurrent } >{ title }</a>
         </div>
 
         <ul>
@@ -55,8 +62,11 @@ class Tree extends Component {
               }
 
               if (crawl[link.url] && !hide) {
-                return <Tree key={ i } style={style} crawl={ crawl } url={ link.url } showExternal={ showExternal } hideSeen={ hideSeen } seen={ nextSeen } />;
+                return <Tree key={ i } style={style} crawl={ crawl } url={ link.url } showExternal={ showExternal } hideSeen={ hideSeen } seen={ nextSeen } current={ current } updateCurrent={ updateCurrent } />;
               } else if (showExternal) {
+                if (current === link.url) {
+                  style = {backgroundColor: '#FFFF91'};
+                }
                 return <li key={ i }><a style={style} href={ link.url }>{ link.text.length > 0 ? link.text : link.url }</a></li>;
               } else {
                 return null;
@@ -73,11 +83,11 @@ class Tree extends Component {
 
 class CrawlViewer extends Component {
   render() {
-    const { crawl, base, showExternal, hideSeen } = this.props;
+    const { crawl, base, showExternal, hideSeen, updateCurrent, current } = this.props;
 
     return (
       <ul>
-        { crawl[base] ? <Tree crawl={ crawl } url={ base } expanded={ true } showExternal={ showExternal } hideSeen={ hideSeen }/> : null }
+        { crawl[base] ? <Tree crawl={ crawl } url={ base } expanded={ true } showExternal={ showExternal } hideSeen={ hideSeen } current={ current } updateCurrent={ updateCurrent } /> : null }
       </ul>
     );
   }
@@ -89,6 +99,7 @@ class App extends Component {
     base: "https://www.ycombinator.com",
     showExternal: false,
     hideSeen: false,
+    current: null,
   };
 
   loadFile = async (e) => {
@@ -108,8 +119,16 @@ class App extends Component {
     this.setState({hideSeen: e.target.checked});
   }
 
+  updateCurrent = (e) => {
+    const current = e.target.getAttribute('href');
+
+    if (current !== this.state.current) {
+      this.setState({current});
+    }
+  }
+
   render() {
-    const { crawl, base, showExternal, hideSeen } = this.state;
+    const { crawl, base, showExternal, hideSeen, current } = this.state;
 
     return (
       <div>
@@ -128,7 +147,7 @@ class App extends Component {
           <input type="checkbox" checked={ hideSeen } onChange={ this.updateHideSeen } />
         </label>
 
-        { crawl ? <CrawlViewer crawl={ crawl } base={ base } showExternal={ showExternal } hideSeen={ hideSeen } /> : null }
+        { crawl ? <CrawlViewer crawl={ crawl } base={ base } showExternal={ showExternal } hideSeen={ hideSeen } current={ current } updateCurrent={ this.updateCurrent } /> : null }
       </div>
     );
   }
